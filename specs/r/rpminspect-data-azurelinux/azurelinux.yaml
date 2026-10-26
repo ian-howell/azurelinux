@@ -7,7 +7,7 @@ common:
     workdir: /var/tmp/rpminspect
 
 environment:
-    product_release: GENERIC
+    product_release: AZURELINUX4
 
 vendor:
     vendor_data_dir: /usr/share/rpminspect
@@ -17,3 +17,32 @@ vendor:
 inspections:
     # Enable this after azurelinux-license-data supplies curated policy.
     license: off
+    # Generic policy parses non-manpage documentation and helper scripts as
+    # manual pages. Enable after Azure Linux supplies tailored exceptions.
+    manpage: off
+
+annocheck:
+    jobs:
+        hardened: --ignore-unknown
+
+lto:
+    lto_symbol_name_prefixes:
+        - .gnu.lto_
+        - .gnu.debuglto_
+        - __gnu_lto_v1
+        - __gnu_lto_slim
+
+pathmigration:
+    migrated_paths:
+        /bin: /usr/bin
+        /sbin: /usr/sbin
+        /lib: /usr/lib
+        /lib64: /usr/lib64
+    excluded_paths:
+        - /lib/modules
+
+# rpminspect requires a mapping even when comparing RPMs without Java bytecode.
+# Azure Linux uses the generic data profile until it publishes a release-specific
+# Java policy.
+javabytecode:
+    default: 43
