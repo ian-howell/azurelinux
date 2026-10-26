@@ -1,0 +1,55 @@
+# Azure Linux 4 additions to the rpmlint policy.
+#
+# This fragment is loaded after rpmlint's baseline policy. Keep exceptions
+# here narrowly scoped and documented. Package validation must disable
+# rpmlint's host configuration autoloading and load only this fragment
+# explicitly:
+#
+#   CONFIG_DISABLE_AUTOLOADING=1 rpmlint --config zz-azurelinux.toml <rpm>...
+#
+# `--config` is single-valued (repeating it keeps only the last occurrence)
+# and, when pointed at a directory, globs it unsorted, so passing both this
+# fragment and the Fedora baseline cannot reliably order them; load only this
+# file. rpmlint's own configdefaults.toml always loads regardless of
+# CONFIG_DISABLE_AUTOLOADING, but sets `ReleaseExtension = ""` and
+# `Filters = []`, so it never contends with the settings below. Without
+# CONFIG_DISABLE_AUTOLOADING, a validation host with its own (unpatched)
+# rpmlint installed still autoloads that host's Fedora baseline, whose
+# `not-standard-release-extension` suppression hides invalid releases
+# independent of this fragment.
+
+# Azure Linux package releases use the .azl4 suffix instead of Fedora's .fcNN
+# suffix. The boundary assertion also supports a subsequent packaging suffix.
+ReleaseExtension = '\.azl4(?=[.~+]|$)'
+
+# Azure Linux uses the usr-merged paths below in generated RPM scriptlets.
+# They are equivalent to rpmlint's traditional /bin and /sbin interpreter
+# paths, and are valid even when the target package does not own the command.
+ValidEmptyShells = [
+	"/usr/sbin/ldconfig",
+]
+
+ValidShells = [
+	"/usr/bin/sh",
+	"/usr/bin/bash",
+	"/usr/sbin/ldconfig",
+]
+
+# Azure Linux man pages and other compressible files use gzip, not rpmlint's
+# own default of bz2. Without this, valid gzip-compressed files trigger a
+# false manpage-not-compressed finding when only this fragment is loaded.
+CompressExtension = "gz"
+
+# Historical license texts frequently contain the former FSF postal address.
+# This is informational and cannot be corrected by downstream packagers.
+#
+# rpmlint's own default license allow-list is empty, so every SPDX license
+# token is otherwise flagged invalid-license. Suppress it here too (in
+# addition to the matching fedora.toml overlay, for hosts that load this
+# fragment without fedora.toml) until azurelinux-license-data ships.
+Filters = [
+	".*incorrect-fsf-address.*",
+	".*invalid-license.*",
+	# The deprecated RPM Group tag is optional in Azure Linux packages.
+	".*no-group-tag.*",
+]
