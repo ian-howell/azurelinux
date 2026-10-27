@@ -18,7 +18,7 @@
 Summary:        Mariner kernel that has MSHV Host support
 Name:           kernel-mshv
 Version:        6.18.34.mshv3
-Release:        1%{?dist}
+Release:        2%{?dist}
 License:        GPLv2
 Group:          Development/Tools
 Vendor:         Microsoft Corporation
@@ -30,6 +30,7 @@ Source3:        50_mariner_mshv.cfg
 Source4:        50_mariner_mshv_menuentry
 Source5:        config_aarch64
 Patch0:         0001-restore-mshv1-x86-vPCI-interrupt-implementation.patch
+Patch1:         0002-iommu-arm-smmu-v3-iommufd-Allow-attaching-nested-domain-for-GBPA-cases.patch
 BuildRequires:  audit-devel
 BuildRequires:  bash
 BuildRequires:  bc
@@ -266,6 +267,14 @@ echo "initrd of kernel %{uname_r} removed" >&2
 %{_includedir}/perf/perf_dlfilter.h
 
 %changelog
+* Fri Oct 23 2026 Jocelyn Berrendonner <jocelynb@microsoft.com> - 6.18.34.mshv3-2
+- Backport upstream 81c45c62dc3e to allow attaching an abort/bypass nested
+  SMMUv3 domain without a vDEVICE (needed by VMMs with an accelerated vSMMU)
+- Enable CONFIG_MLX5_SF and CONFIG_MLX5_VFIO_PCI
+- aarch64: enable CONFIG_NVGRACE_GPU_VFIO_PCI, CONFIG_PCI_P2PDMA, CONFIG_IOMMUFD,
+  CONFIG_VFIO_DEVICE_CDEV, CONFIG_ARM_SMMU_V3_IOMMUFD and CONFIG_TEGRA241_CMDQV
+  for Grace Blackwell GPU passthrough
+
 * Wed Oct 07 2026 Saul Paredes <saulparedes@microsoft.com> - 6.18.34.mshv3-1
 - Upgrade to 6.18.34.mshv3
 - Enable CONFIG_CHECKPOINT_RESTORE, CONFIG_INET_RAW_DIAG and CONFIG_MSHV_GICV3_MSI
