@@ -2855,6 +2855,7 @@
                 "kernel-mshv",
                 "kernel-rt",
                 "kernel-uvm",
+                "kernel-uvm-hpc",
                 "kernel-uvm-micro",
                 "keyutils",
                 "kmod",
